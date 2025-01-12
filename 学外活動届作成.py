@@ -23,7 +23,7 @@ def write_csv_to_word_table(csv_file, word_file):
         print("エラー: 3つ目の表が見つかりません。")
         return
 
-    with open(csv_file, 'r', encoding='utf-8') as infile:
+    with open(csv_file, 'r', encoding='utf-8-sig') as infile:
         reader = csv.DictReader(infile)
 
         data_to_write = {  # 書き込むデータを辞書で管理
@@ -88,7 +88,7 @@ if uploaded_csv is not None and uploaded_word is not None:
             try:
                 write_csv_to_word_table("temp.csv", "temp.docx")
                 with open("temp.docx", "rb") as f:
-                    st.download_button(label="ダウンロード", data=f, file_name="output.docx") #ダウンロードボタン
+                    st.download_button(label="ダウンロード", data=f, file_name="katsudoutodoke.docx") #ダウンロードボタン
                 st.success("書き込みが完了しました！") # 成功メッセージを表示
             except Exception as e:
                 st.error(f"エラーが発生しました: {e}")
