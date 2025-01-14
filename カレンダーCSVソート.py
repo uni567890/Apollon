@@ -3,35 +3,40 @@ import csv
 from datetime import datetime
 import os
 
-def sort_csv_by_date(input_file, output_file):
-    """CSVファイルを開始日順に並べ替える"""
+def sort_csv_by_date_and_time(input_file, output_file):
+    """
+    CSVファイルを開始日と開始時刻順に並べ替える
+
+    Args:
+        input_file (str): 入力CSVファイルのパス
+        output_file (str): 出力CSVファイルのパス
+    """
     data = []
-    try:
-        with open(input_file, 'r', encoding='utf-8') as infile:
-            reader = csv.DictReader(infile)
-            for row in reader:
-                try:
-                    row['開始日'] = datetime.strptime(row['開始日'], '%Y/%m/%d')
-                    data.append(row)
-                except ValueError:
-                    return "日付形式が正しくありません。'YYYY/MM/DD'の形式で入力してください。"
-                except KeyError:
-                    return "CSVファイルに'開始日'列が存在しません。"
-    except FileNotFoundError:
-        return "CSVファイルが見つかりません。"
-    except Exception as e:
-        return f"予期せぬエラーが発生しました: {e}"
+    with open(input_file, 'r', encoding='utf-8-sig') as infile:
+        reader = csv.DictReader(infile)
+        for row in reader:
+            try:
+                row['開始日'] = datetime.strptime(row['開始日'], '%Y/%m/%d').date() # 日付型に変換
+                row['開始時刻'] = datetime.strptime(row['開始時刻'], '%H:%M:%S').time() # 時刻型に変換
+                data.append(row)
+            except ValueError as e:
+                print(f"警告: 不正な日付または時刻形式の行があります: {row} - {e}")
 
-    data.sort(key=lambda x: x['開始日'])
+    # 開始日と開始時刻でソート
+    data.sort(key=lambda x: (x['開始日'], x['開始時刻']))
 
-    with open(output_file, 'w', encoding='utf-8', newline='') as outfile:
+    with open(output_file, 'w', encoding='utf-8-sig', newline='') as outfile:
         fieldnames = reader.fieldnames
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
         for row in data:
-            row['開始日'] = row['開始日'].strftime('%Y/%m/%d')
-            writer.writerow(row)
-    return None
+            writer.writerow({
+                '件名': row['件名'],
+                '開始日': row['開始日'].strftime('%Y/%m/%d'),
+                '開始時刻': row['開始時刻'].strftime('%H:%M:%S'),
+                '終了時刻': row['終了時刻'],
+                '場所': row['場所']
+            })
 
 st.title('CSVソートツール')
 
@@ -43,7 +48,7 @@ if uploaded_file is not None:
 
     if st.button('ソート'):
         with st.spinner('処理中...'):
-            error_message = sort_csv_by_date("temp.csv", "sorted.csv")
+            error_message = sort_csv_by_date_and_time("temp.csv", "sorted.csv")
             if error_message:
                 st.error(error_message)
             else:
