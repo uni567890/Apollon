@@ -4,6 +4,11 @@ from datetime import datetime
 import csv
 import os
 
+# (前述のwrite_csv_to_word_table関数をここにコピー)
+from docx import Document
+from datetime import datetime
+import csv
+
 def write_csv_to_word_table(csv_file, word_file):
     """CSVデータをWordの指定された表のセルに書き込む（同一セルに連結、通し番号付き、件名も追記）"""
     try:
@@ -35,11 +40,16 @@ def write_csv_to_word_table(csv_file, word_file):
                 event_time_start = row['開始時刻']
                 event_time_end = row['終了時刻']
                 event_place_name = row['場所'].split(',')[0] if row['場所'] else ""
-                
-                # 住所から「日本、」を削除
-                address_parts = row['場所'].split(',')
-                event_place_address = ','.join(address_parts[1:]).lstrip() if len(address_parts) > 1 else ""
-                
+                event_place_address_full = ','.join(row['場所'].split(',')[1:]) if len(row['場所'].split(',')) > 1 else ""
+
+                # 「日本、」を削除する処理を追加
+                if event_place_address_full.startswith(" 日本、"): # 先頭に「 日本、」がある場合
+                    event_place_address = event_place_address_full[len(" 日本、"):] # 「 日本、」以降を抽出
+                elif event_place_address_full.startswith("日本、"): # 先頭に「日本、」がある場合 (念のため)
+                    event_place_address = event_place_address_full[len("日本、"):] # 「日本、」以降を抽出
+                else:
+                    event_place_address = event_place_address_full # そのまま
+
                 event_datetime = f"{event_date} {event_time_start}-{event_time_end}"
                 event_subject = row['件名']
 
@@ -68,6 +78,7 @@ def write_csv_to_word_table(csv_file, word_file):
                 print(f"表の範囲外への書き込みが発生しました。行:{row_index+1}, 列:{col_index+1} 表の行数を確認してください。")
 
     document.save(word_file)
+
 
 st.title('Wordファイル書き込みツール')
 
