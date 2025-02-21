@@ -40,6 +40,7 @@ def write_to_excel(csv_file_content, excel_file_content, year, month):
                 end_time = datetime.strptime(end_time_str, '%H:%M')
             except ValueError:
                 st.warning(f"時刻形式エラー: {start_time_str}または{end_time_str}. 時間は空白で出力します。")
+                st.write("start_time_str")
                 start_time = ""
                 end_time = ""
 
