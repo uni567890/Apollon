@@ -47,6 +47,8 @@ def write_csv_to_word_table(csv_file, word_file):
                     event_place_address = event_place_address_full[len(" 日本、"):] # 「 日本、」以降を抽出
                 elif event_place_address_full.startswith("日本、"): # 先頭に「日本、」がある場合 (念のため)
                     event_place_address = event_place_address_full[len("日本、"):] # 「日本、」以降を抽出
+                elif event_place_address_full.startswith("  日本、"): # 先頭に「  日本、」がある場合 (念のため)
+                    event_place_address = event_place_address_full[len("  日本、"):] # 「日本、」以降を抽出
                 else:
                     event_place_address = event_place_address_full # そのまま
 
